@@ -1,6 +1,7 @@
 # ui.js
 
-_ui.js_ is a JavaScript library that gives you the power of [Custom Elements][0]
+_ui.js_ is a JavaScript library that gives you the power of
+[Custom Elements](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements)
 without making you use JavaScript classes, properties, or `this`.
 
 Instead, _ui.js_ provides an interface based on two of JavaScript's best parts:
@@ -9,20 +10,45 @@ size.
 
 _ui.js_ is in the Public Domain.
 
+## The Problem with Custom Elements
+
+The biggest problem with Custom Elements is the use of a global, name-based
+registry. To instantiate a Custom Element, you must reference it by name. That
+is fine for small websites, but for large web applications it is a recipe for
+disaster because the dependency graph is not explicit.
+
+The Custom Elements specification predates the addition of modules to
+JavaScript. Modules provide a clear, statically-analyzable dependency graph,
+essential in any large application. `ui` makes functions that can be exported
+from modules.
+
+The other problem with Custom Elements is that it mandates the use of JavaScript
+classes and `this`, both of which are
+[dangerous and unnecessary](https://www.youtube.com/watch?v=XFTOG895C7c&t=2445s)
+parts of the language. There is also no way to pass parameters when creating a
+Custom Element, resulting in heavy use of properties.
+
+`ui` takes a _create_ function that provides a
+[closure](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures)
+where all of the element's state can live, held in private variables. Variables
+are safer to use than properties because they are actually private, and there is
+no weirdness arising from the prototype chain. Douglas Crockford coined the term
+[Class Free](https://www.youtube.com/watch?v=XFTOG895C7c&t=2688s) to describe
+this pattern.
+
 ## Usage Examples
 
-In the following trivial example, we make a `colored` function that makes
-colored elements. We then make `red_element`, populate it with some text, and
+In the following trivial example, we make a `colorful` function that makes
+colorful elements. We then make `red_element`, populate it with some text, and
 add it to the page.
 
 ```javascript
 import ui from "./ui.js";
 
-const colored = ui("colored-ui", function create(element, params) {
+const colorful = ui("colorful-ui", function create(element, params) {
     element.style.color = params.color;
 });
-
-const red_element = colored({color: "red"});
+const red_element = colorful({color: "red"});
 red_element.textContent = "I am red.";
 document.body.append(red_element);
 ```
@@ -31,7 +57,7 @@ The state of the DOM is now:
 
 ```html
 <body>
-    <colored-ui style="color: red;">I am red</colored-ui>
+    <colorful-ui style="color: red;">I am red</colorful-ui>
 </body>
 ```
 
@@ -115,35 +141,13 @@ The state of the DOM is now something like:
 </body>
 ```
 
-## The Problem with Custom Elements
-
-The biggest problem with Custom Elements is the use of a global, name-based
-registry. To instantiate a Custom Element, you must reference it by name. That
-is fine for small websites, but for large web applications it is a recipe for
-disaster because the dependency graph is not explicit.
-
-The Custom Elements specification predates the addition of modules to
-JavaScript. Modules provide a clear, statically-analyzable dependency graph,
-essential in any large application. `ui` makes functions that can be exported
-from modules.
-
-The other problem with Custom Elements is that it mandates the use of JavaScript
-classes and `this`, both of which are [dangerous and unnecessary][2] parts of
-the language. There is also no way to pass parameters when creating a Custom
-Element, resulting in heavy use of properties.
-
-`ui` takes a _create_ function that provides a private closure where all of the
-element's state can live, held in local variables. Variables are safer to use
-than properties, because variables can be statically analyzed and there is no
-weirdness arising from the prototype chain. Douglas Crockford coined the term
-[Class Free][3] to describe this pattern.
-
 ## The Functions
 
 ### ui(_tag_, _create_) → make_element(_params_) → Element
 
 The `ui` function returns a function that makes elements. The _tag_ is the name
-of the element, and must be a [valid custom element name][1].
+of the element, and must be a
+[valid custom element name](https://developer.mozilla.org/en-US/docs/Web/API/CustomElementRegistry/define#valid_custom_element_names).
 The _create_ function initializes a newly created element, and is described
 below.
 
@@ -155,8 +159,3 @@ was passed to `make_element`.
 
 The `create` function may return an object with `connect` and `disconnect`
 callbacks.
-
-[0]: https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements
-[1]: https://developer.mozilla.org/en-US/docs/Web/API/CustomElementRegistry/define#valid_custom_element_names
-[2]: https://www.youtube.com/watch?v=XFTOG895C7c&t=2445s
-[3]: https://www.youtube.com/watch?v=XFTOG895C7c&t=2688s

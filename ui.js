@@ -1,11 +1,11 @@
 // ui.js
 // James Diacono
-// 2024-02-16
+// 2024-02-26
 
 // Custom Elements with a safer, more expressive interface.
 
-// This module does not pass JSLint because it uses JavaScript's class syntax,
-// so that you never have to.
+// This module fails JSLint because it uses JavaScript's class syntax, so that
+// you don't have to.
 
 // Public Domain.
 
@@ -14,10 +14,12 @@ let instances = new WeakMap();
 function ui(tag, create) {
 
 // It seems that the only way to efficiently monitor a DOM element's
-// connectedness to a document, without knowledge of its parent, is thru
-// connectedCallback and disconnectedCallback. If a better approach presents
-// itself (perhaps https://github.com/whatwg/dom/issues/533), there will be no
-// need to use Custom Elements and hence no need for this library.
+// connectedness to a document, without knowledge of its parent, is thru the
+// Custom Element 'connectedCallback' and 'disconnectedCallback' methods.
+
+// When a better approach presents itself
+// (perhaps https://github.com/whatwg/dom/issues/533), there will be no need to
+// use Custom Elements and hence no need for ui.js.
 
     if (customElements.get(tag) === undefined) {
         customElements.define(tag, class extends HTMLElement {
